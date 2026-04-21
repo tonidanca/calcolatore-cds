@@ -1,413 +1,260 @@
 <!DOCTYPE html>
 <!--
-  Autore:  Mario Rossi
-  Data:    Aprile 2026
-  Versione: 1.0
-  Descrizione: Calcolatore decurtazione RAL da Contratto di Solidarietà
+  Autore:  Toni D'Anca
+  Calcolatore Decurtazione Contratto di Solidarietà
+  Versione: 2.0
+  Data: 21 Aprile 2026
 -->
 <html lang="it">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Decurtazione stipendio da Contratto di Solidarietà</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Decurtazione Contratto di Solidarietà</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1a1a1a;color:#e0e0e0;padding:20px;min-height:100vh}
+.wrap{max-width:540px;margin:0 auto;padding:1.5rem 0}
+h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
+.sub{font-size:13px;color:#888;margin-bottom:1.5rem}
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #1a1a1a;
-      color: #e0e0e0;
-      padding: 20px;
-      min-height: 100vh
-    }
+.section{background:#242424;border:0.5px solid #3a3a3a;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:.85rem}
 
-    .wrap {
-      max-width: 540px;
-      margin: 0 auto;
-      padding: 1.5rem 0
-    }
+.row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #333}
+.row:last-child{border-bottom:none}
+.row.disabled .lbl,.row.disabled .note,.row.disabled .val{opacity:.35}
 
-    h2 {
-      font-size: 17px;
-      font-weight: 500;
-      color: #f0f0f0;
-      margin-bottom: 4px
-    }
+.badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:600;flex-shrink:0}
+.b-blue{background:#1a3a5c;color:#7ab3e0}
+.b-red{background:#4a1a1a;color:#e07a7a}
+.b-green{background:#1a3a1a;color:#7ae07a}
+.b-orange{background:#3a2a0a;color:#e0a050}
 
-    .sub {
-      font-size: 13px;
-      color: #999;
-      margin-bottom: 1.5rem
-    }
+.lbl-block{flex:1;min-width:0}
+.lbl{font-size:14px;color:#bbb;line-height:1.3}
+.note{font-size:10px;color:#555;font-family:'Courier New',monospace;margin-top:2px}
+.val{font-size:15px;font-weight:500;white-space:nowrap;min-width:80px;text-align:right}
+.loss{color:#e07a7a}
+.gain{color:#7ac47a}
+.warn{color:#e0a050}
+.divider{height:0.5px;background:#333;margin:.5rem 0}
 
-    .section {
-      background: #242424;
-      border: 0.5px solid #3a3a3a;
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1rem
-    }
+.input-row{padding:10px 0;border-bottom:0.5px solid #333}
+.input-row:last-child{border-bottom:none}
+.input-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.input-top .lbl{font-size:14px;color:#bbb}
+.input-bottom{display:flex;justify-content:flex-end}
 
-    .section-title {
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: #666;
-      margin-bottom: .85rem
-    }
+.ral-wrap{display:flex;align-items:center;gap:6px}
+.ral-sym{font-size:13px;color:#666}
+.ral-input{
+  width:140px;max-width:140px;text-align:right;font-size:15px;
+  font-family:inherit;background:#2e2e2e;border:0.5px solid #444;
+  border-radius:8px;padding:6px 10px;color:#f0f0f0;outline:none;
+}
+.ral-input:focus{border-color:#4a7ab5}
 
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 0.5px solid #333
-    }
+.toggle-wrap{display:flex;flex-direction:column;gap:5px}
+.tog{
+  width:140px;padding:7px 0;border:0.5px solid #444;border-radius:8px;
+  background:#2e2e2e;color:#bbb;font-size:14px;font-weight:500;
+  cursor:pointer;transition:all .15s;text-align:center;
+}
+.tog.active{background:#185FA5;border-color:#185FA5;color:#fff}
+.tog:hover:not(.active){background:#383838}
 
-    .row:last-child {
-      border-bottom: none
-    }
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.card{background:#2a2a2a;border-radius:10px;padding:.85rem 1rem}
+.card-lbl{font-size:12px;color:#888;margin-bottom:4px}
+.card-val{font-size:20px;font-weight:500}
 
-    .row.disabled .lbl,
-    .row.disabled .note,
-    .row.disabled .val {
-      opacity: .35
-    }
+.row-final .lbl{font-size:15px;font-weight:500;color:#f0f0f0}
+.row-final .val{font-size:20px}
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      font-size: 11px;
-      font-weight: 600;
-      flex-shrink: 0
-    }
+.stima-box{background:#242424;border:0.5px solid #3a3a3a;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.stima-header{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:.85rem}
+.stima-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:0.5px solid #333}
+.stima-row:last-of-type{border-bottom:none}
+.aliquota-badge{font-size:11px;padding:2px 8px;border-radius:6px;background:#3a2a0a;color:#e0a050;font-family:'Courier New',monospace;white-space:nowrap;flex-shrink:0}
+.stima-disclaimer{font-size:11px;color:#555;margin-top:.85rem;line-height:1.6;font-style:italic;border-top:0.5px solid #333;padding-top:.75rem}
 
-    .b-blue {
-      background: #1a3a5c;
-      color: #7ab3e0
-    }
-
-    .b-red {
-      background: #4a1a1a;
-      color: #e07a7a
-    }
-
-    .b-green {
-      background: #1a3a1a;
-      color: #7ae07a
-    }
-
-    .lbl-block {
-      flex: 1;
-      min-width: 0
-    }
-
-    .lbl {
-      font-size: 14px;
-      color: #bbb;
-      line-height: 1.3
-    }
-
-    .note {
-      font-size: 10px;
-      color: #555;
-      font-family: 'Courier New', monospace;
-      margin-top: 2px
-    }
-
-    .val {
-      font-size: 15px;
-      font-weight: 500;
-      white-space: nowrap;
-      min-width: 80px;
-      text-align: right
-    }
-
-    .loss {
-      color: #e07a7a
-    }
-
-    .gain {
-      color: #7ac47a
-    }
-
-    .divider {
-      height: 0.5px;
-      background: #333;
-      margin: .5rem 0
-    }
-
-    .input-row {
-      padding: 10px 0;
-      border-bottom: 0.5px solid #333
-    }
-
-    .input-row:last-child {
-      border-bottom: none
-    }
-
-    .input-top {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px
-    }
-
-    .input-top .lbl {
-      font-size: 14px;
-      color: #bbb
-    }
-
-    .input-bottom {
-      display: flex;
-      justify-content: flex-end
-    }
-
-    .ral-wrap {
-      display: flex;
-      align-items: center;
-      gap: 6px
-    }
-
-    .ral-sym {
-      font-size: 13px;
-      color: #666
-    }
-
-    .ral-input {
-      width: 140px;
-      max-width: 140px;
-      text-align: right;
-      font-size: 15px;
-      font-family: inherit;
-      background: #2e2e2e;
-      border: 0.5px solid #444;
-      border-radius: 8px;
-      padding: 6px 10px;
-      color: #f0f0f0;
-      outline: none;
-    }
-
-    .ral-input:focus {
-      border-color: #4a7ab5
-    }
-
-    .toggle-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 5px
-    }
-
-    .tog {
-      width: 140px;
-      padding: 7px 0;
-      border: 0.5px solid #444;
-      border-radius: 8px;
-      background: #2e2e2e;
-      color: #bbb;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all .15s;
-      text-align: center;
-    }
-
-    .tog.active {
-      background: #185FA5;
-      border-color: #185FA5;
-      color: #fff
-    }
-
-    .tog:hover:not(.active) {
-      background: #383838
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 1rem
-    }
-
-    .card {
-      background: #2a2a2a;
-      border-radius: 10px;
-      padding: .85rem 1rem
-    }
-
-    .card-lbl {
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 4px
-    }
-
-    .card-val {
-      font-size: 20px;
-      font-weight: 500
-    }
-
-    .row-final .lbl {
-      font-size: 15px;
-      font-weight: 500;
-      color: #f0f0f0
-    }
-
-    .row-final .val {
-      font-size: 20px
-    }
-  </style>
+.tabs{display:flex;gap:6px;margin-bottom:1rem}
+.tab{flex:1;padding:8px 0;border:0.5px solid #444;border-radius:8px;background:#2e2e2e;color:#888;font-size:13px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s}
+.tab.active{background:#2a3a2a;border-color:#3a6a3a;color:#7ac47a}
+.tab:hover:not(.active){background:#383838}
+</style>
 </head>
-
 <body>
-  <div class="wrap">
-    <h2>Calcolatore decurtazione contratto di solidarietà</h2>
-    <p class="sub">Calcola la retribuzione persa durante il periodo di CdS</p>
+<div class="wrap">
+  <h2>Calcolatore decurtazione contratto di solidarietà</h2>
+  <p class="sub">Calcola la retribuzione persa durante il periodo di CdS</p>
 
-    <div class="section">
-      <div class="section-title">Dati di input</div>
-
-      <div class="input-row">
-        <div class="input-top">
-          <span class="badge b-blue">A</span>
-          <span class="lbl">RAL annua lorda</span>
-        </div>
-        <div class="input-bottom">
-          <div class="ral-wrap">
-            <span class="ral-sym">€</span>
-            <input class="ral-input" type="number" id="ral" value="35000" min="0" step="500" />
-          </div>
-        </div>
-      </div>
-
-      <div class="input-row">
-        <div class="input-top">
-          <span class="badge b-blue">C</span>
-          <span class="lbl">Giorni CdS nel mese</span>
-        </div>
-        <div class="input-bottom">
-          <div class="toggle-wrap">
-            <button class="tog active" data-val="1">1 giorno</button>
-            <button class="tog" data-val="8">8 giorni</button>
-          </div>
+  <div class="section">
+    <div class="section-title">Dati di input</div>
+    <div class="input-row">
+      <div class="input-top"><span class="badge b-blue">A</span><span class="lbl">RAL annua lorda</span></div>
+      <div class="input-bottom">
+        <div class="ral-wrap"><span class="ral-sym">€</span>
+          <input class="ral-input" type="number" id="ral" value="35000" min="0" step="500"/>
         </div>
       </div>
     </div>
-
-    <div class="section">
-      <div class="section-title">Calcoli intermedi</div>
-      <div class="row">
-        <span class="badge b-blue">B</span>
-        <div class="lbl-block">
-          <div class="lbl">RAL mensile (su 13 mensilità)</div>
-          <div class="note">B = A / 13</div>
+    <div class="input-row">
+      <div class="input-top"><span class="badge b-blue">C</span><span class="lbl">Giorni CdS nel mese</span></div>
+      <div class="input-bottom">
+        <div class="toggle-wrap">
+          <button class="tog active" data-val="1">1 giorno</button>
+          <button class="tog" data-val="8">8 giorni</button>
         </div>
-        <span class="val" id="v-B">–</span>
-      </div>
-      <div class="row">
-        <span class="badge b-blue">D</span>
-        <div class="lbl-block">
-          <div class="lbl">Ore CdS nel mese</div>
-          <div class="note">D = C × 8</div>
-        </div>
-        <span class="val" id="v-D">–</span>
-      </div>
-      <div class="divider"></div>
-      <div class="row">
-        <span class="badge b-blue">E</span>
-        <div class="lbl-block">
-          <div class="lbl">RAL persa nel mese</div>
-          <div class="note">E = (B / 173) × D</div>
-        </div>
-        <span class="val loss" id="v-E">–</span>
-      </div>
-      <div class="row">
-        <span class="badge b-green">F</span>
-        <div class="lbl-block">
-          <div class="lbl">Recupero mensile INPS</div>
-          <div class="note">F = (1340,56 / 173) × 109,49% × D</div>
-        </div>
-        <span class="val gain" id="v-F">–</span>
-      </div>
-      <div class="row" id="row-L">
-        <span class="badge b-green">L</span>
-        <div class="lbl-block">
-          <div class="lbl">Reintegro mensile azienda</div>
-          <div class="note">L = (E − F) × 75% · solo se C = 8</div>
-        </div>
-        <span class="val gain" id="v-L">–</span>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Risultato finale</div>
-      <div class="row row-final" style="padding:10px 0">
-        <span class="badge b-red">G</span>
-        <div class="lbl-block">
-          <div class="lbl">RAL persa dal dipendente nel mese</div>
-          <div class="note">G = ROUND(E − F − L, 2)</div>
-        </div>
-        <span class="val loss" id="v-G">–</span>
-      </div>
-    </div>
-
-    <div class="cards">
-      <div class="card">
-        <div class="card-lbl">Perdita lorda (E)</div>
-        <div class="card-val loss" id="c-E">–</div>
-      </div>
-      <div class="card">
-        <div class="card-lbl">Recupero totale (F + L)</div>
-        <div class="card-val gain" id="c-FL">–</div>
       </div>
     </div>
   </div>
 
-  <script>
-    let C = 1;
-    const fmt = v => '€\u00a0' + v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const round2 = x => Math.round(x * 100) / 100;
+  <div class="section">
+    <div class="section-title">Calcoli intermedi</div>
+    <div class="row">
+      <span class="badge b-blue">B</span>
+      <div class="lbl-block"><div class="lbl">RAL mensile (su 13 mensilità)</div><div class="note">B = A / 13</div></div>
+      <span class="val" id="v-B">–</span>
+    </div>
+    <div class="row">
+      <span class="badge b-blue">D</span>
+      <div class="lbl-block"><div class="lbl">Ore CdS nel mese</div><div class="note">D = C × 8</div></div>
+      <span class="val" id="v-D">–</span>
+    </div>
+    <div class="divider"></div>
+    <div class="row">
+      <span class="badge b-blue">E</span>
+      <div class="lbl-block"><div class="lbl">RAL persa nel mese</div><div class="note">E = (B / 173) × D</div></div>
+      <span class="val loss" id="v-E">–</span>
+    </div>
+    <div class="row">
+      <span class="badge b-green">F</span>
+      <div class="lbl-block"><div class="lbl">Recupero mensile INPS</div><div class="note">F = (1340,56 / 173) × 109,49% × D</div></div>
+      <span class="val gain" id="v-F">–</span>
+    </div>
+    <div class="row" id="row-L">
+      <span class="badge b-green">L</span>
+      <div class="lbl-block"><div class="lbl">Reintegro mensile azienda</div><div class="note">L = (E − F) × 75% · solo se C = 8</div></div>
+      <span class="val gain" id="v-L">–</span>
+    </div>
+  </div>
 
-    function calc() {
-      const A = parseFloat(document.getElementById('ral').value) || 0;
-      const B = A / 13;
-      const D = C * 8;
-      const E = (B / 173) * D;
-      const F = (1340.56 / 173) * 1.0949 * D;
-      const L = C === 8 ? (E - F) * 0.75 : 0;
-      const G = round2(E - F - L);
+  <div class="section">
+    <div class="section-title">Risultato finale — perdita lorda</div>
+    <div class="row row-final" style="padding:10px 0">
+      <span class="badge b-red">G</span>
+      <div class="lbl-block"><div class="lbl">RAL persa dal dipendente nel mese</div><div class="note">G = ROUND(E − F − L, 2)</div></div>
+      <span class="val loss" id="v-G" style="font-size:20px">–</span>
+    </div>
+  </div>
 
-      document.getElementById('v-B').textContent = fmt(B);
-      document.getElementById('v-D').textContent = D + ' h';
-      document.getElementById('v-E').textContent = fmt(E);
-      document.getElementById('v-F').textContent = fmt(F);
-      document.getElementById('v-L').textContent = fmt(L);
-      document.getElementById('v-G').textContent = fmt(G);
-      document.getElementById('c-E').textContent = fmt(E);
-      document.getElementById('c-FL').textContent = fmt(F + L);
-      document.getElementById('row-L').classList.toggle('disabled', C !== 8);
-    }
+  <div class="stima-box">
+    <div class="stima-header">Stima perdita netta mensile</div>
+    <div class="stima-row">
+      <div class="lbl-block"><div class="lbl">Scaglione IRPEF applicato</div><div class="note">su reddito imponibile = RAL × 90,81%</div></div>
+      <span class="aliquota-badge" id="v-scaglione">–</span>
+    </div>
+    <div class="stima-row">
+      <div class="lbl-block"><div class="lbl">Aliquota marginale totale</div><div class="note">IRPEF + addiz. regionale media + INPS 9,19%</div></div>
+      <span class="val warn" id="v-aliquota">–</span>
+    </div>
+    <div class="stima-row">
+      <span class="badge b-orange">N</span>
+      <div class="lbl-block"><div class="lbl">Perdita netta stimata nel mese</div><div class="note">N = G × (1 − aliquota marginale totale)</div></div>
+      <span class="val loss" id="v-N" style="font-size:18px;font-weight:600">–</span>
+    </div>
+    <div class="stima-disclaimer">⚠️ Stima approssimativa basata sulle aliquote IRPEF 2025 e sull'addizionale regionale media (1,73%). Non tiene conto di detrazioni personali, addizionale comunale o situazioni fiscali individuali. Per calcoli precisi rivolgersi a un consulente del lavoro.</div>
+  </div>
 
-    document.querySelectorAll('.tog').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tog').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        C = parseInt(btn.dataset.val);
-        calc();
-      });
-    });
-    document.getElementById('ral').addEventListener('input', calc);
+  <div class="tabs">
+    <button class="tab active" data-period="mensile">Riepilogo mensile</button>
+    <button class="tab" data-period="annuale">Proiezione annuale</button>
+  </div>
+
+  <div id="panel-mensile">
+    <div class="cards">
+      <div class="card"><div class="card-lbl">Perdita lorda mensile (G)</div><div class="card-val loss" id="cm-G">–</div></div>
+      <div class="card"><div class="card-lbl">Perdita netta stimata (N)</div><div class="card-val loss" id="cm-N">–</div></div>
+    </div>
+  </div>
+
+  <div id="panel-annuale" style="display:none">
+    <div class="section" style="margin-bottom:1rem">
+      <div class="section-title">Proiezione annuale (× 12 mesi)</div>
+      <div class="row">
+        <div class="lbl-block"><div class="lbl">Perdita lorda annuale</div><div class="note">G × 12</div></div>
+        <span class="val loss" id="ca-G">–</span>
+      </div>
+      <div class="row">
+        <div class="lbl-block"><div class="lbl">Perdita netta stimata annuale</div><div class="note">N × 12</div></div>
+        <span class="val loss" id="ca-N" style="font-size:18px;font-weight:600">–</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+let C = 1;
+const fmt = v => '€\u00a0' + v.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct = v => (v*100).toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1}) + '%';
+const round2 = x => Math.round(x*100)/100;
+
+function getMarginalRate(RAL) {
+  const imponibile = RAL * 0.9081;
+  const addReg = 0.0173;
+  if (imponibile <= 28000) return { label:'23% (fino a €28.000)', total: 0.23 + addReg + 0.0919 };
+  if (imponibile <= 50000) return { label:'35% (€28.001 – €50.000)', total: 0.35 + addReg + 0.0919 };
+  return { label:'43% (oltre €50.000)', total: 0.43 + addReg + 0.0919 };
+}
+
+function calc() {
+  const A = parseFloat(document.getElementById('ral').value) || 0;
+  const B = A / 13;
+  const D = C * 8;
+  const E = (B / 173) * D;
+  const F = (1340.56 / 173) * 1.0949 * D;
+  const L = C === 8 ? (E - F) * 0.75 : 0;
+  const G = round2(E - F - L);
+  const rate = getMarginalRate(A);
+  const N = round2(G * (1 - rate.total));
+
+  document.getElementById('v-B').textContent = fmt(B);
+  document.getElementById('v-D').textContent = D + ' h';
+  document.getElementById('v-E').textContent = fmt(E);
+  document.getElementById('v-F').textContent = fmt(F);
+  document.getElementById('v-L').textContent = fmt(L);
+  document.getElementById('v-G').textContent = fmt(G);
+  document.getElementById('v-scaglione').textContent = rate.label;
+  document.getElementById('v-aliquota').textContent = pct(rate.total);
+  document.getElementById('v-N').textContent = fmt(N);
+  document.getElementById('cm-G').textContent = fmt(G);
+  document.getElementById('cm-N').textContent = fmt(N);
+  document.getElementById('ca-G').textContent = fmt(round2(G * 12));
+  document.getElementById('ca-N').textContent = fmt(round2(N * 12));
+  document.getElementById('row-L').classList.toggle('disabled', C !== 8);
+}
+
+document.querySelectorAll('.tog').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tog').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    C = parseInt(btn.dataset.val);
     calc();
-  </script>
-</body>
+  });
+});
 
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-mensile').style.display = tab.dataset.period === 'mensile' ? '' : 'none';
+    document.getElementById('panel-annuale').style.display = tab.dataset.period === 'annuale' ? '' : 'none';
+  });
+});
+
+document.getElementById('ral').addEventListener('input', calc);
+calc();
+</script>
+</body>
 </html>
