@@ -2,31 +2,41 @@
 <!--
   Autore:  Toni D'Anca
   Calcolatore Decurtazione Contratto di Solidarietà
-  Versione: 3.0
-  Data: 21 Aprile 2026
+  Versione: 4.0 — Aprile 2026
+  Correzioni: logica netta (E/F/L), calcolo mensile con festività italiane
 -->
 <html lang="it">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Decurtazione Contratto di Solidarietà</title>
+<title>Decurtazione CdS</title>
 <link rel="icon" href="img/favicon.ico" type="image/x-icon">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1a1a1a;color:#e0e0e0;padding:20px;min-height:100vh}
-.wrap{max-width:540px;margin:0 auto;padding:1.5rem 0}
+.wrap{max-width:560px;margin:0 auto;padding:1rem 0}
 h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
-.sub{font-size:13px;color:#888;margin-bottom:1.5rem}
-.section{background:#242424;border:0.5px solid #3a3a3a;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-.section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:.85rem}
-.row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #333}
+.sub{font-size:13px;color:#888;margin-bottom:1rem}
+
+.main-tabs{display:flex;gap:6px;margin-bottom:1rem}
+.main-tab{flex:1;padding:9px 0;border:0.5px solid #444;border-radius:8px;background:#2e2e2e;color:#888;font-size:13px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s}
+.main-tab.active{background:#185FA5;border-color:#185FA5;color:#fff}
+.main-tab:hover:not(.active){background:#383838}
+
+.section{background:#242424;border:0.5px solid #3a3a3a;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.85rem}
+.section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:.75rem}
+
+.row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid #333}
 .row:last-child{border-bottom:none}
 .row.disabled .lbl,.row.disabled .note,.row.disabled .val{opacity:.35}
+
 .badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:600;flex-shrink:0}
 .b-blue{background:#1a3a5c;color:#7ab3e0}
 .b-red{background:#4a1a1a;color:#e07a7a}
 .b-green{background:#1a3a1a;color:#7ae07a}
 .b-orange{background:#3a2a0a;color:#e0a050}
+.b-grey{background:#2e2e2e;color:#888;border:0.5px solid #444}
+
 .lbl-block{flex:1;min-width:0}
 .lbl{font-size:14px;color:#bbb;line-height:1.3}
 .note{font-size:10px;color:#555;font-family:'Courier New',monospace;margin-top:2px}
@@ -34,13 +44,15 @@ h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
 .loss{color:#e07a7a}
 .gain{color:#7ac47a}
 .warn{color:#e0a050}
-.divider{height:0.5px;background:#333;margin:.5rem 0}
-.input-row{padding:10px 0;border-bottom:0.5px solid #333}
+.neutral{color:#e0e0e0}
+.divider{height:0.5px;background:#333;margin:.4rem 0}
+
+.input-row{padding:9px 0;border-bottom:0.5px solid #333}
 .input-row:last-child{border-bottom:none}
-.input-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.input-top{display:flex;align-items:center;gap:10px;margin-bottom:7px}
 .input-top .lbl{font-size:14px;color:#bbb}
 .input-bottom{display:flex;justify-content:flex-end}
-.ral-wrap{display:flex;align-items:center;gap:6px}
+.ral-wrap{display:flex;align-items:center;gap:5px}
 .ral-sym{font-size:13px;color:#666}
 .ral-input{width:140px;max-width:140px;text-align:right;font-size:15px;font-family:inherit;background:#2e2e2e;border:0.5px solid #444;border-radius:8px;padding:6px 10px;color:#f0f0f0;outline:none}
 .ral-input:focus{border-color:#4a7ab5}
@@ -48,187 +60,361 @@ h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
 .tog{width:140px;padding:7px 0;border:0.5px solid #444;border-radius:8px;background:#2e2e2e;color:#bbb;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center}
 .tog.active{background:#185FA5;border-color:#185FA5;color:#fff}
 .tog:hover:not(.active){background:#383838}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
-.card{background:#2a2a2a;border-radius:10px;padding:.85rem 1rem}
-.card-lbl{font-size:12px;color:#888;margin-bottom:4px}
-.card-val{font-size:20px;font-weight:500}
-.row-final .lbl{font-size:15px;font-weight:500;color:#f0f0f0}
-.row-final .val{font-size:20px}
-.stima-box{background:#242424;border:0.5px solid #3a3a3a;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-.stima-header{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:.85rem}
+
+.period-row{display:flex;gap:8px;align-items:center}
+.period-sel{font-size:14px;font-family:inherit;flex:1;padding:6px 8px;border-radius:8px;border:0.5px solid #444;background:#2e2e2e;color:#e0e0e0;outline:none}
+.year-inp{font-size:14px;font-family:inherit;width:80px;padding:6px 8px;border-radius:8px;border:0.5px solid #444;background:#2e2e2e;color:#e0e0e0;text-align:center;outline:none}
+.period-sel:focus,.year-inp:focus{border-color:#4a7ab5}
+
+.info-box{background:#2e2e2e;border-radius:8px;padding:.65rem 1rem;margin-top:.75rem;font-size:13px;color:#999}
+.info-box strong{color:#f0f0f0;font-weight:600}
+.festivi-list{margin-top:.4rem}
+.festivi-item{font-size:11px;color:#666;padding:1px 0}
+.festivi-item::before{content:'🔴 ';font-size:9px}
+
+.stima-box{background:#242424;border:0.5px solid #3a3a3a;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.85rem}
 .stima-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:0.5px solid #333}
 .stima-row:last-of-type{border-bottom:none}
 .aliquota-badge{font-size:11px;padding:2px 8px;border-radius:6px;background:#3a2a0a;color:#e0a050;font-family:'Courier New',monospace;white-space:nowrap;flex-shrink:0}
-.stima-disclaimer{font-size:11px;color:#555;margin-top:.85rem;line-height:1.6;font-style:italic;border-top:0.5px solid #333;padding-top:.75rem}
-.tabs{display:flex;gap:6px;margin-bottom:1rem}
-.tab{flex:1;padding:8px 0;border:0.5px solid #444;border-radius:8px;background:#2e2e2e;color:#888;font-size:13px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s}
-.tab.active{background:#1a3a1a;border-color:#3a6a3a;color:#7ac47a}
-.tab:hover:not(.active){background:#383838}
+.disclaimer{font-size:11px;color:#555;margin-top:.75rem;line-height:1.6;font-style:italic;border-top:0.5px solid #333;padding-top:.65rem}
+.gain-note{font-size:11px;color:#7ac47a;margin-top:.5rem;font-style:italic}
+
+.sub-tabs{display:flex;gap:6px;margin-bottom:.85rem}
+.sub-tab{flex:1;padding:7px 0;border:0.5px solid #444;border-radius:8px;background:#2e2e2e;color:#888;font-size:12px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s}
+.sub-tab.active{background:#1a3a1a;border-color:#3a6a3a;color:#7ac47a}
+.sub-tab:hover:not(.active){background:#383838}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.5rem}
+.card{background:#2a2a2a;border-radius:10px;padding:.85rem 1rem}
+.card-lbl{font-size:12px;color:#888;margin-bottom:4px}
+.card-val{font-size:20px;font-weight:500}
+
+.row-final .lbl{font-size:15px;font-weight:500;color:#f0f0f0}
+.row-final .val{font-size:20px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h2>Calcolatore decurtazione contratto di solidarietà</h2>
+  <h2>Decurtazione contratto di solidarietà</h2>
   <p class="sub">Calcola la retribuzione persa durante il periodo di CdS</p>
 
-  <div class="section">
-    <div class="section-title">Dati di input</div>
-    <div class="input-row">
-      <div class="input-top"><span class="badge b-blue">A</span><span class="lbl">RAL annua lorda</span></div>
-      <div class="input-bottom"><div class="ral-wrap"><span class="ral-sym">€</span><input class="ral-input" type="number" id="ral" value="35000" min="0" step="500"/></div></div>
-    </div>
-    <div class="input-row">
-      <div class="input-top"><span class="badge b-blue">C</span><span class="lbl">Giorni CdS nel mese</span></div>
-      <div class="input-bottom"><div class="toggle-wrap">
-        <button class="tog active" data-val="1">1 giorno</button>
-        <button class="tog" data-val="8">8 giorni</button>
-      </div></div>
-    </div>
+  <div class="main-tabs">
+    <button class="main-tab active" data-tab="rapida">⚡ Stima rapida</button>
+    <button class="main-tab" data-tab="mensile">📅 Calcolo mensile</button>
   </div>
 
-  <div class="section">
-    <div class="section-title">Calcoli intermedi</div>
-    <div class="row">
-      <span class="badge b-blue">B</span>
-      <div class="lbl-block"><div class="lbl">RAL mensile (su 13 mensilità)</div><div class="note">B = A / 13</div></div>
-      <span class="val" id="v-B">–</span>
+  <!-- ===== STIMA RAPIDA ===== -->
+  <div id="tab-rapida">
+    <div class="section">
+      <div class="section-title">Dati di input</div>
+      <div class="input-row">
+        <div class="input-top"><span class="badge b-blue">A</span><span class="lbl">RAL annua lorda</span></div>
+        <div class="input-bottom"><div class="ral-wrap"><span class="ral-sym">€</span><input class="ral-input" type="number" id="r-ral" value="35000" min="0" step="500"/></div></div>
+      </div>
+      <div class="input-row">
+        <div class="input-top"><span class="badge b-blue">C</span><span class="lbl">Giorni CdS nel mese</span></div>
+        <div class="input-bottom"><div class="toggle-wrap">
+          <button class="tog active" data-c="1" data-group="rapida">1 giorno</button>
+          <button class="tog" data-c="8" data-group="rapida">8 giorni</button>
+        </div></div>
+      </div>
     </div>
-    <div class="row">
-      <span class="badge b-blue">D</span>
-      <div class="lbl-block"><div class="lbl">Ore CdS nel mese</div><div class="note">D = C × 8</div></div>
-      <span class="val" id="v-D">–</span>
-    </div>
-    <div class="divider"></div>
-    <div class="row">
-      <span class="badge b-blue">E</span>
-      <div class="lbl-block"><div class="lbl">RAL persa nel mese</div><div class="note">E = (B / 173) × D</div></div>
-      <span class="val loss" id="v-E">–</span>
-    </div>
-    <div class="row">
-      <span class="badge b-green">F</span>
-      <div class="lbl-block"><div class="lbl">Recupero mensile INPS</div><div class="note">F = (1340,56 / 173) × D</div></div>
-      <span class="val gain" id="v-F">–</span>
-    </div>
-    <div class="row" id="row-L">
-      <span class="badge b-green">L</span>
-      <div class="lbl-block"><div class="lbl">Reintegro mensile azienda</div><div class="note">L = (E − F) × 75% · solo se C = 8</div></div>
-      <span class="val gain" id="v-L">–</span>
-    </div>
-  </div>
 
-  <div class="section">
-    <div class="section-title">Risultato finale — perdita lorda</div>
-    <div class="row row-final" style="padding:10px 0">
-      <span class="badge b-red">G</span>
-      <div class="lbl-block"><div class="lbl">RAL persa dal dipendente nel mese</div><div class="note">G = ROUND(E − F − L, 2)</div></div>
-      <span class="val loss" id="v-G" style="font-size:20px">–</span>
+    <div class="section">
+      <div class="section-title">Calcoli intermedi</div>
+      <div class="row"><span class="badge b-blue">B</span><div class="lbl-block"><div class="lbl">RAL mensile (su 13 mensilità)</div><div class="note">B = A / 13</div></div><span class="val" id="r-B">–</span></div>
+      <div class="row"><span class="badge b-blue">D</span><div class="lbl-block"><div class="lbl">Ore CdS nel mese</div><div class="note">D = C × 8</div></div><span class="val" id="r-D">–</span></div>
+      <div class="divider"></div>
+      <div class="row"><span class="badge b-blue">E</span><div class="lbl-block"><div class="lbl">RAL persa nel mese</div><div class="note">E = (B / 173) × D</div></div><span class="val loss" id="r-E">–</span></div>
+      <div class="row"><span class="badge b-green">F</span><div class="lbl-block"><div class="lbl">Recupero mensile INPS <em style="font-size:10px;color:#555">(già netto)</em></div><div class="note">F = (1340,56 / 173) × D</div></div><span class="val gain" id="r-F">–</span></div>
+      <div class="row" id="r-row-L"><span class="badge b-green">L</span><div class="lbl-block"><div class="lbl">Reintegro mensile azienda <em style="font-size:10px;color:#555">(lordo, tassato)</em></div><div class="note">L = (E − F) × 75% · solo se C = 8</div></div><span class="val gain" id="r-L">–</span></div>
     </div>
-  </div>
 
-  <div class="stima-box">
-    <div class="stima-header">Stima perdita netta mensile</div>
-    <div class="stima-row">
-      <div class="lbl-block"><div class="lbl">Scaglione IRPEF applicato</div><div class="note">su reddito imponibile = RAL × 90,81%</div></div>
-      <span class="aliquota-badge" id="v-scaglione">–</span>
+    <div class="section">
+      <div class="section-title">Risultato finale — perdita lorda</div>
+      <div class="row row-final" style="padding:10px 0">
+        <span class="badge b-red">G</span>
+        <div class="lbl-block"><div class="lbl">RAL persa dal dipendente nel mese</div><div class="note">G = ROUND(E − F − L, 2)</div></div>
+        <span class="val loss" id="r-G" style="font-size:20px">–</span>
+      </div>
     </div>
-    <div class="stima-row">
-      <div class="lbl-block"><div class="lbl">Aliquota marginale totale</div><div class="note">IRPEF + addiz. regionale media + INPS 9,19%</div></div>
-      <span class="val warn" id="v-aliquota">–</span>
-    </div>
-    <div class="stima-row">
-      <span class="badge b-orange">N</span>
-      <div class="lbl-block"><div class="lbl">Perdita netta stimata nel mese</div><div class="note">N = G × (1 − aliquota marginale totale)</div></div>
-      <span class="val loss" id="v-N" style="font-size:18px;font-weight:600">–</span>
-    </div>
-    <div class="stima-disclaimer">⚠️ Stima approssimativa basata sulle aliquote IRPEF 2025 e sull'addizionale regionale media (1,73%). Non tiene conto di detrazioni personali, addizionale comunale o situazioni fiscali individuali. Per calcoli precisi rivolgersi a un consulente del lavoro.</div>
-  </div>
 
-  <div class="tabs">
-    <button class="tab active" data-period="mensile">Riepilogo mensile</button>
-    <button class="tab" data-period="annuale">Proiezione annuale</button>
-  </div>
-
-  <div id="panel-mensile">
-    <div class="cards">
-      <div class="card"><div class="card-lbl">Perdita lorda mensile (G)</div><div class="card-val loss" id="cm-G">–</div></div>
-      <div class="card"><div class="card-lbl">Perdita netta stimata (N)</div><div class="card-val loss" id="cm-N">–</div></div>
+    <div class="stima-box">
+      <div class="section-title">Stima variazione netta mensile</div>
+      <div class="stima-row"><div class="lbl-block"><div class="lbl">Scaglione IRPEF applicato</div><div class="note">su imponibile = RAL × 90,81%</div></div><span class="aliquota-badge" id="r-bracket">–</span></div>
+      <div class="stima-row"><div class="lbl-block"><div class="lbl">Aliquota marginale totale</div><div class="note">IRPEF + addiz. reg. media (1,73%) + INPS 9,19%</div></div><span class="val warn" id="r-aliq">–</span></div>
+      <div class="stima-row">
+        <span class="badge b-orange">N</span>
+        <div class="lbl-block"><div class="lbl">Variazione netta stimata nel mese</div><div class="note">N = (E − L) × netFactor − F</div></div>
+        <span class="val" id="r-N" style="font-size:18px;font-weight:600">–</span>
+      </div>
+      <div id="r-gain-note" class="gain-note" style="display:none">ℹ️ Il sussidio INPS e i risparmi fiscali superano la perdita: l'impatto netto risulta un leggero guadagno.</div>
+      <div class="disclaimer">⚠️ <strong>Stima approssimativa.</strong> Usa 173 ore come divisore standard (media annuale) — le ore reali variano tra 152 e 184 h/mese. La logica netta considera: E abbassa l'imponibile IRPEF, F è già netto (non tassato ulteriormente), L è lordo e contribuisce all'imponibile. Non include detrazioni personali, addizionale comunale o situazioni fiscali individuali. Per calcoli precisi rivolgersi a un consulente del lavoro.</div>
     </div>
-  </div>
 
-  <div id="panel-annuale" style="display:none">
-    <div class="section" style="margin-bottom:1rem">
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-period="m" data-scope="rapida">Riepilogo mensile</button>
+      <button class="sub-tab" data-period="a" data-scope="rapida">Proiezione annuale</button>
+    </div>
+    <div id="r-panel-m"><div class="cards">
+      <div class="card"><div class="card-lbl">Perdita lorda (G)</div><div class="card-val loss" id="r-cm-G">–</div></div>
+      <div class="card"><div class="card-lbl">Variazione netta (N)</div><div class="card-val" id="r-cm-N">–</div></div>
+    </div></div>
+    <div id="r-panel-a" style="display:none"><div class="section" style="margin-bottom:.5rem">
       <div class="section-title">Proiezione annuale (× 12 mesi)</div>
-      <div class="row">
-        <div class="lbl-block"><div class="lbl">Perdita lorda annuale</div><div class="note">G × 12</div></div>
-        <span class="val loss" id="ca-G">–</span>
-      </div>
-      <div class="row">
-        <div class="lbl-block"><div class="lbl">Perdita netta stimata annuale</div><div class="note">N × 12</div></div>
-        <span class="val loss" id="ca-N" style="font-size:18px;font-weight:600">–</span>
-      </div>
-    </div>
+      <div class="row"><div class="lbl-block"><div class="lbl">Perdita lorda annuale</div><div class="note">G × 12</div></div><span class="val loss" id="r-ca-G">–</span></div>
+      <div class="row"><div class="lbl-block"><div class="lbl">Variazione netta annuale</div><div class="note">N × 12</div></div><span class="val" id="r-ca-N" style="font-size:18px;font-weight:600">–</span></div>
+    </div></div>
   </div>
 
+  <!-- ===== CALCOLO MENSILE ===== -->
+  <div id="tab-mensile" style="display:none">
+    <div class="section">
+      <div class="section-title">Periodo di riferimento</div>
+      <div class="period-row">
+        <select class="period-sel" id="m-month">
+          <option value="1">Gennaio</option><option value="2">Febbraio</option>
+          <option value="3">Marzo</option><option value="4">Aprile</option>
+          <option value="5">Maggio</option><option value="6">Giugno</option>
+          <option value="7">Luglio</option><option value="8">Agosto</option>
+          <option value="9">Settembre</option><option value="10">Ottobre</option>
+          <option value="11">Novembre</option><option value="12">Dicembre</option>
+        </select>
+        <input class="year-inp" type="number" id="m-year" value="2026" min="2024" max="2040"/>
+      </div>
+      <div class="info-box" id="m-info">–</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dati retributivi</div>
+      <div class="input-row">
+        <div class="input-top"><span class="badge b-blue">B</span><span class="lbl">RAL mensile (busta paga base)</span></div>
+        <div class="input-bottom"><div class="ral-wrap"><span class="ral-sym">€</span><input class="ral-input" type="number" id="m-B" value="2692" min="0" step="100"/></div></div>
+      </div>
+      <div class="input-row">
+        <div class="input-top"><span class="badge b-grey">+</span><span class="lbl">Altri importi mensili <em style="font-size:11px;color:#666">(straordinari, reperibilità… — opzionale)</em></span></div>
+        <div class="input-bottom"><div class="ral-wrap"><span class="ral-sym">€</span><input class="ral-input" type="number" id="m-extra" value="0" min="0" step="50"/></div></div>
+      </div>
+      <div class="input-row">
+        <div class="input-top"><span class="badge b-blue">C</span><span class="lbl">Giorni CdS nel mese</span></div>
+        <div class="input-bottom"><div class="toggle-wrap">
+          <button class="tog active" data-c="1" data-group="mensile">1 giorno</button>
+          <button class="tog" data-c="8" data-group="mensile">8 giorni</button>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Calcoli <span id="m-ore-label" style="color:#555;font-weight:400;font-size:10px;text-transform:none;letter-spacing:0"></span></div>
+      <div class="row"><span class="badge b-blue">D</span><div class="lbl-block"><div class="lbl">Ore CdS nel mese</div><div class="note">D = C × 8</div></div><span class="val" id="m-D">–</span></div>
+      <div class="divider"></div>
+      <div class="row"><span class="badge b-blue">E</span><div class="lbl-block"><div class="lbl">RAL persa nel mese</div><div class="note">E = (B / ore effettive mese) × D</div></div><span class="val loss" id="m-E">–</span></div>
+      <div class="row"><span class="badge b-green">F</span><div class="lbl-block"><div class="lbl">Recupero mensile INPS <em style="font-size:10px;color:#555">(già netto)</em></div><div class="note">F = (1340,56 / 173) × D</div></div><span class="val gain" id="m-F">–</span></div>
+      <div class="row" id="m-row-L"><span class="badge b-green">L</span><div class="lbl-block"><div class="lbl">Reintegro mensile azienda <em style="font-size:10px;color:#555">(lordo, tassato)</em></div><div class="note">L = (E − F) × 75% · solo se C = 8</div></div><span class="val gain" id="m-L">–</span></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risultato finale — perdita lorda</div>
+      <div class="row row-final" style="padding:10px 0">
+        <span class="badge b-red">G</span>
+        <div class="lbl-block"><div class="lbl">RAL persa dal dipendente nel mese</div><div class="note">G = ROUND(E − F − L, 2)</div></div>
+        <span class="val loss" id="m-G" style="font-size:20px">–</span>
+      </div>
+    </div>
+
+    <div class="stima-box">
+      <div class="section-title">Stima variazione netta mensile</div>
+      <div class="stima-row"><div class="lbl-block"><div class="lbl">Scaglione IRPEF applicato</div><div class="note">su imponibile annuo stimato = (B + extra) × 13 × 90,81%</div></div><span class="aliquota-badge" id="m-bracket">–</span></div>
+      <div class="stima-row"><div class="lbl-block"><div class="lbl">Aliquota marginale totale</div><div class="note">IRPEF + addiz. reg. media (1,73%) + INPS 9,19%</div></div><span class="val warn" id="m-aliq">–</span></div>
+      <div class="stima-row">
+        <span class="badge b-orange">N</span>
+        <div class="lbl-block"><div class="lbl">Variazione netta stimata nel mese</div><div class="note">N = (E − L) × netFactor − F</div></div>
+        <span class="val" id="m-N" style="font-size:18px;font-weight:600">–</span>
+      </div>
+      <div id="m-gain-note" class="gain-note" style="display:none">ℹ️ Il sussidio INPS e i risparmi fiscali superano la perdita: l'impatto netto risulta un leggero guadagno.</div>
+      <div class="disclaimer">⚠️ <strong>Stima approssimativa.</strong> Usa le ore lavorative effettive del mese (esclusi sabati, domeniche e festività nazionali) come divisore per la tariffa oraria, anziché la media di 173. Il CCNL applicato o le prassi aziendali potrebbero usare un metodo diverso. Gli extra mensili influenzano solo la stima dello scaglione IRPEF, non E, F, L, G. Per calcoli precisi rivolgersi a un consulente del lavoro.</div>
+    </div>
+
+    <div class="cards">
+      <div class="card"><div class="card-lbl">Perdita lorda (G)</div><div class="card-val loss" id="m-cm-G">–</div></div>
+      <div class="card"><div class="card-lbl">Variazione netta (N)</div><div class="card-val" id="m-cm-N">–</div></div>
+    </div>
+  </div>
 </div>
+
 <script>
-let C = 1;
-const fmt = v => '€\u00a0' + v.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
-const pct = v => (v*100).toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1}) + '%';
-const round2 = x => Math.round(x*100)/100;
-
-function getMarginalRate(RAL) {
-  const imponibile = RAL * 0.9081;
-  const addReg = 0.0173;
-  if (imponibile <= 28000) return { label:'23% (fino a €28.000)', total: 0.23 + addReg + 0.0919 };
-  if (imponibile <= 50000) return { label:'35% (€28.001 – €50.000)', total: 0.35 + addReg + 0.0919 };
-  return { label:'43% (oltre €50.000)', total: 0.43 + addReg + 0.0919 };
+// ===== EASTER & HOLIDAYS =====
+function getEaster(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,
+        f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,
+        i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,
+        m=Math.floor((a+11*h+22*l)/451),
+        mo=Math.floor((h+l-7*m+114)/31)-1,
+        dy=((h+l-7*m+114)%31)+1;
+  return new Date(y,mo,dy);
+}
+function getPasquetta(y){const e=getEaster(y);return new Date(y,e.getMonth(),e.getDate()+1);}
+function buildHolidays(y){
+  const p=getPasquetta(y);
+  return [
+    {date:new Date(y,0,1),name:'Capodanno'},{date:new Date(y,0,6),name:'Epifania'},
+    {date:p,name:"Lunedì dell'Angelo"},
+    {date:new Date(y,3,25),name:'Liberazione'},{date:new Date(y,4,1),name:'Festa del Lavoro'},
+    {date:new Date(y,5,2),name:'Festa della Repubblica'},{date:new Date(y,7,15),name:'Ferragosto'},
+    {date:new Date(y,10,1),name:'Ognissanti'},{date:new Date(y,11,8),name:'Immacolata'},
+    {date:new Date(y,11,25),name:'Natale'},{date:new Date(y,11,26),name:'Santo Stefano'},
+  ];
+}
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function getMonthInfo(year,month){
+  const hols=buildHolidays(year),days=new Date(year,month,0).getDate();
+  let working=0;const festivi=[];
+  for(let d=1;d<=days;d++){
+    const dt=new Date(year,month-1,d),dow=dt.getDay();
+    if(dow===0||dow===6) continue;
+    const hol=hols.find(h=>sameDay(h.date,dt));
+    if(hol) festivi.push({date:dt,name:hol.name});
+    else working++;
+  }
+  return {working,festivi,hours:working*8};
 }
 
-function calc() {
-  const A = parseFloat(document.getElementById('ral').value) || 0;
-  const B = A / 13;
-  const D = C * 8;
-  const E = (B / 173) * D;
-  const F = (1340.56 / 173) * D;
-  const L = C === 8 ? (E - F) * 0.75 : 0;
-  const G = round2(E - F - L);
-  const rate = getMarginalRate(A);
-  const N = round2(G * (1 - rate.total));
+// ===== CALCULATIONS =====
+const round2=x=>Math.round(x*100)/100;
+const fmt=v=>'€\u00a0'+Math.abs(v).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=v=>(v*100).toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
 
-  document.getElementById('v-B').textContent = fmt(B);
-  document.getElementById('v-D').textContent = D + ' h';
-  document.getElementById('v-E').textContent = fmt(E);
-  document.getElementById('v-F').textContent = fmt(F);
-  document.getElementById('v-L').textContent = fmt(L);
-  document.getElementById('v-G').textContent = fmt(G);
-  document.getElementById('v-scaglione').textContent = rate.label;
-  document.getElementById('v-aliquota').textContent = pct(rate.total);
-  document.getElementById('v-N').textContent = fmt(N);
-  document.getElementById('cm-G').textContent = fmt(G);
-  document.getElementById('cm-N').textContent = fmt(N);
-  document.getElementById('ca-G').textContent = fmt(round2(G * 12));
-  document.getElementById('ca-N').textContent = fmt(round2(N * 12));
-  document.getElementById('row-L').classList.toggle('disabled', C !== 8);
+function getIRPEF(annualGross){
+  const imp=annualGross*0.9081;
+  if(imp<=28000) return {rate:0.23,label:'23% (fino a €28.000)'};
+  if(imp<=50000) return {rate:0.35,label:'35% (€28.001 – €50.000)'};
+  return {rate:0.43,label:'43% (oltre €50.000)'};
+}
+function getNetFactor(annualGross){
+  const {rate,label}=getIRPEF(annualGross);
+  return {nf:1-0.0919-0.9081*(rate+0.0173),label,totalRate:0.0919+0.9081*(rate+0.0173)};
 }
 
-document.querySelectorAll('.tog').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tog').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    C = parseInt(btn.dataset.val);
-    calc();
-  });
-});
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-mensile').style.display = tab.dataset.period === 'mensile' ? '' : 'none';
-    document.getElementById('panel-annuale').style.display = tab.dataset.period === 'annuale' ? '' : 'none';
-  });
-});
-document.getElementById('ral').addEventListener('input', calc);
-calc();
+function renderN(N,elVal,elCard,elNote){
+  elVal.style.fontSize='18px';elVal.style.fontWeight='600';
+  if(N>0){
+    elVal.textContent='-'+fmt(N);elVal.className='val loss';
+    elCard.textContent='-'+fmt(N);elCard.className='card-val loss';
+    elNote.style.display='none';
+  } else if(N<0){
+    elVal.textContent='+'+fmt(-N);elVal.className='val gain';
+    elCard.textContent='+'+fmt(-N);elCard.className='card-val gain';
+    elNote.style.display='block';
+  } else {
+    elVal.textContent='€ 0,00';elVal.className='val neutral';
+    elCard.textContent='€ 0,00';elCard.className='card-val neutral';
+    elNote.style.display='none';
+  }
+}
+
+// ===== STIMA RAPIDA =====
+let rC=1;
+function calcRapida(){
+  const A=parseFloat(document.getElementById('r-ral').value)||0;
+  const B=A/13,D=rC*8,E=(B/173)*D,F=(1340.56/173)*D;
+  const L=rC===8?(E-F)*0.75:0,G=round2(E-F-L);
+  const {nf,label,totalRate}=getNetFactor(A);
+  const N=round2((E-L)*nf-F);
+
+  document.getElementById('r-B').textContent=fmt(B);
+  document.getElementById('r-D').textContent=D+' h';
+  document.getElementById('r-E').textContent='-'+fmt(E);
+  document.getElementById('r-F').textContent='+'+fmt(F);
+  document.getElementById('r-L').textContent=L>0?'+'+fmt(L):'€ 0,00';
+  document.getElementById('r-G').textContent='-'+fmt(G);
+  document.getElementById('r-bracket').textContent=label;
+  document.getElementById('r-aliq').textContent=pct(totalRate);
+  document.getElementById('r-row-L').classList.toggle('disabled',rC!==8);
+  document.getElementById('r-cm-G').textContent='-'+fmt(G);
+  document.getElementById('r-ca-G').textContent='-'+fmt(round2(G*12));
+
+  renderN(N,document.getElementById('r-N'),document.getElementById('r-cm-N'),document.getElementById('r-gain-note'));
+  const aN=round2(N*12),caN=document.getElementById('r-ca-N');
+  caN.style.fontSize='18px';caN.style.fontWeight='600';
+  if(aN>0){caN.textContent='-'+fmt(aN);caN.className='val loss';}
+  else if(aN<0){caN.textContent='+'+fmt(-aN);caN.className='val gain';}
+  else{caN.textContent='€ 0,00';caN.className='val neutral';}
+}
+
+// ===== CALCOLO MENSILE =====
+let mC=1;
+const DAY_NAMES=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+
+function calcMensile(){
+  const month=parseInt(document.getElementById('m-month').value);
+  const year=parseInt(document.getElementById('m-year').value)||2026;
+  const B=parseFloat(document.getElementById('m-B').value)||0;
+  const extra=parseFloat(document.getElementById('m-extra').value)||0;
+  const info=getMonthInfo(year,month);
+
+  let html=`<strong>${info.working} giorni lavorativi</strong> &nbsp;·&nbsp; <strong>${info.hours} ore effettive</strong>`;
+  if(info.festivi.length>0){
+    html+=`<div class="festivi-list">Festività infrasettimanali:`;
+    info.festivi.forEach(f=>{html+=`<div class="festivi-item">${DAY_NAMES[f.date.getDay()]} ${f.date.getDate()} — ${f.name}</div>`;});
+    html+='</div>';
+  } else {
+    html+=' &nbsp;·&nbsp; nessuna festività infrasettimanale';
+  }
+  document.getElementById('m-info').innerHTML=html;
+  document.getElementById('m-ore-label').textContent=`· divisore ore effettive: ${info.hours}h`;
+
+  const D=mC*8,divisore=info.hours>0?info.hours:173;
+  const E=(B/divisore)*D,F=(1340.56/173)*D;
+  const L=mC===8?(E-F)*0.75:0,G=round2(E-F-L);
+  const annualEst=(B+extra)*13;
+  const {nf,label,totalRate}=getNetFactor(annualEst);
+  const N=round2((E-L)*nf-F);
+
+  document.getElementById('m-D').textContent=D+' h';
+  document.getElementById('m-E').textContent='-'+fmt(E);
+  document.getElementById('m-F').textContent='+'+fmt(F);
+  document.getElementById('m-L').textContent=L>0?'+'+fmt(L):'€ 0,00';
+  document.getElementById('m-G').textContent='-'+fmt(G);
+  document.getElementById('m-bracket').textContent=label;
+  document.getElementById('m-aliq').textContent=pct(totalRate);
+  document.getElementById('m-row-L').classList.toggle('disabled',mC!==8);
+  document.getElementById('m-cm-G').textContent='-'+fmt(G);
+
+  renderN(N,document.getElementById('m-N'),document.getElementById('m-cm-N'),document.getElementById('m-gain-note'));
+}
+
+// ===== EVENTS =====
+document.querySelectorAll('.main-tab').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-rapida').style.display=btn.dataset.tab==='rapida'?'':'none';
+  document.getElementById('tab-mensile').style.display=btn.dataset.tab==='mensile'?'':'none';
+}));
+
+document.querySelectorAll('.tog').forEach(btn=>btn.addEventListener('click',()=>{
+  const g=btn.dataset.group;
+  document.querySelectorAll(`.tog[data-group="${g}"]`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(g==='rapida'){rC=parseInt(btn.dataset.c);calcRapida();}
+  else{mC=parseInt(btn.dataset.c);calcMensile();}
+}));
+
+document.querySelectorAll('.sub-tab').forEach(tab=>tab.addEventListener('click',()=>{
+  document.querySelectorAll(`.sub-tab[data-scope="${tab.dataset.scope}"]`).forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('r-panel-m').style.display=tab.dataset.period==='m'?'':'none';
+  document.getElementById('r-panel-a').style.display=tab.dataset.period==='a'?'':'none';
+}));
+
+document.getElementById('r-ral').addEventListener('input',calcRapida);
+['m-month','m-year','m-B','m-extra'].forEach(id=>document.getElementById(id).addEventListener(id==='m-month'?'change':'input',calcMensile));
+
+const now=new Date();
+document.getElementById('m-month').value=now.getMonth()+1;
+document.getElementById('m-year').value=now.getFullYear();
+
+calcRapida();
+calcMensile();
 </script>
 </body>
 </html>
