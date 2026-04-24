@@ -2,14 +2,13 @@
 <!--
   Autore:  Toni D'Anca
   Calcolatore Decurtazione Contratto di Solidarietà
-  Versione: 4.0 — Aprile 2026
-  Correzioni: logica netta (E/F/L), calcolo mensile con festività italiane
+  Versione: 6.0 — Aprile 2026
 -->
 <html lang="it">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Decurtazione CdS</title>
+<title>Decurtazione da CdS</title>
 <link rel="icon" href="img/favicon.ico" type="image/x-icon">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -35,7 +34,6 @@ h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
 .b-red{background:#4a1a1a;color:#e07a7a}
 .b-green{background:#1a3a1a;color:#7ae07a}
 .b-orange{background:#3a2a0a;color:#e0a050}
-.b-grey{background:#2e2e2e;color:#888;border:0.5px solid #444}
 
 .lbl-block{flex:1;min-width:0}
 .lbl{font-size:14px;color:#bbb;line-height:1.3}
@@ -149,7 +147,7 @@ h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
         <span class="val" id="r-N" style="font-size:18px;font-weight:600">–</span>
       </div>
       <div id="r-gain-note" class="gain-note" style="display:none">ℹ️ Il sussidio INPS e i risparmi fiscali superano la perdita: l'impatto netto risulta un leggero guadagno.</div>
-      <div class="disclaimer">⚠️ <strong>Stima approssimativa.</strong> Usa 173 ore come divisore standard (media annuale) — le ore reali variano tra 152 e 184 h/mese. La logica netta considera: E abbassa l'imponibile IRPEF, F è già netto (non tassato ulteriormente), L è lordo e contribuisce all'imponibile. Non include detrazioni personali, addizionale comunale o situazioni fiscali individuali. Per calcoli precisi rivolgersi a un consulente del lavoro.</div>
+      <div class="disclaimer">⚠️ <strong>Stima approssimativa.</strong> Usa 173 ore come divisore standard (media annuale) — le ore reali variano tra 152 e 184 h/mese. E abbassa l'imponibile IRPEF; F è già netto; L è lordo e contribuisce all'imponibile. Non include detrazioni personali, addizionale comunale o situazioni fiscali individuali. Per calcoli precisi rivolgersi a un consulente del lavoro.</div>
     </div>
 
     <div class="sub-tabs">
@@ -192,10 +190,6 @@ h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
         <div class="input-bottom"><div class="ral-wrap"><span class="ral-sym">€</span><input class="ral-input" type="number" id="m-B" value="2692" min="0" step="100"/></div></div>
       </div>
       <div class="input-row">
-        <div class="input-top"><span class="badge b-grey">+</span><span class="lbl">Altri importi mensili <em style="font-size:11px;color:#666">(straordinari, reperibilità… — opzionale)</em></span></div>
-        <div class="input-bottom"><div class="ral-wrap"><span class="ral-sym">€</span><input class="ral-input" type="number" id="m-extra" value="0" min="0" step="50"/></div></div>
-      </div>
-      <div class="input-row">
         <div class="input-top"><span class="badge b-blue">C</span><span class="lbl">Giorni CdS nel mese</span></div>
         <div class="input-bottom"><div class="toggle-wrap">
           <button class="tog active" data-c="1" data-group="mensile">1 giorno</button>
@@ -224,7 +218,7 @@ h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
 
     <div class="stima-box">
       <div class="section-title">Stima variazione netta mensile</div>
-      <div class="stima-row"><div class="lbl-block"><div class="lbl">Scaglione IRPEF applicato</div><div class="note">su imponibile annuo stimato = (B + extra) × 13 × 90,81%</div></div><span class="aliquota-badge" id="m-bracket">–</span></div>
+      <div class="stima-row"><div class="lbl-block"><div class="lbl">Scaglione IRPEF applicato</div><div class="note">su imponibile annuo = B × 13 × 90,81%</div></div><span class="aliquota-badge" id="m-bracket">–</span></div>
       <div class="stima-row"><div class="lbl-block"><div class="lbl">Aliquota marginale totale</div><div class="note">IRPEF + addiz. reg. media (1,73%) + INPS 9,19%</div></div><span class="val warn" id="m-aliq">–</span></div>
       <div class="stima-row">
         <span class="badge b-orange">N</span>
@@ -232,7 +226,7 @@ h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
         <span class="val" id="m-N" style="font-size:18px;font-weight:600">–</span>
       </div>
       <div id="m-gain-note" class="gain-note" style="display:none">ℹ️ Il sussidio INPS e i risparmi fiscali superano la perdita: l'impatto netto risulta un leggero guadagno.</div>
-      <div class="disclaimer">⚠️ <strong>Stima approssimativa.</strong> Usa le ore lavorative effettive del mese (esclusi sabati, domeniche e festività nazionali) come divisore per la tariffa oraria, anziché la media di 173. Il CCNL applicato o le prassi aziendali potrebbero usare un metodo diverso. Gli extra mensili influenzano solo la stima dello scaglione IRPEF, non E, F, L, G. Per calcoli precisi rivolgersi a un consulente del lavoro.</div>
+      <div class="disclaimer">⚠️ <strong>Stima approssimativa.</strong> Usa le ore lavorative effettive del mese (esclusi sabati, domeniche e festività nazionali) come divisore per la tariffa oraria. Il CCNL applicato o le prassi aziendali potrebbero usare un metodo diverso. Non include detrazioni personali, addizionale comunale o altre voci individuali. Per calcoli precisi rivolgersi a un consulente del lavoro.</div>
     </div>
 
     <div class="cards">
@@ -243,7 +237,6 @@ h2{font-size:17px;font-weight:500;color:#f0f0f0;margin-bottom:4px}
 </div>
 
 <script>
-// ===== EASTER & HOLIDAYS =====
 function getEaster(y){
   const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,
         f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,
@@ -279,20 +272,18 @@ function getMonthInfo(year,month){
   return {working,festivi,hours:working*8};
 }
 
-// ===== CALCULATIONS =====
 const round2=x=>Math.round(x*100)/100;
 const fmt=v=>'€\u00a0'+Math.abs(v).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
 const pct=v=>(v*100).toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+const DAY_NAMES=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 
-function getIRPEF(annualGross){
-  const imp=annualGross*0.9081;
-  if(imp<=28000) return {rate:0.23,label:'23% (fino a €28.000)'};
-  if(imp<=50000) return {rate:0.35,label:'35% (€28.001 – €50.000)'};
-  return {rate:0.43,label:'43% (oltre €50.000)'};
-}
 function getNetFactor(annualGross){
-  const {rate,label}=getIRPEF(annualGross);
-  return {nf:1-0.0919-0.9081*(rate+0.0173),label,totalRate:0.0919+0.9081*(rate+0.0173)};
+  const imp=annualGross*0.9081,addReg=0.0173;
+  let rate,label;
+  if(imp<=28000){rate=0.23;label='23% (fino a €28.000)';}
+  else if(imp<=50000){rate=0.35;label='35% (€28.001 – €50.000)';}
+  else{rate=0.43;label='43% (oltre €50.000)';}
+  return {nf:1-0.0919-0.9081*(rate+addReg),label,totalRate:0.0919+0.9081*(rate+addReg)};
 }
 
 function renderN(N,elVal,elCard,elNote){
@@ -312,7 +303,6 @@ function renderN(N,elVal,elCard,elNote){
   }
 }
 
-// ===== STIMA RAPIDA =====
 let rC=1;
 function calcRapida(){
   const A=parseFloat(document.getElementById('r-ral').value)||0;
@@ -334,6 +324,7 @@ function calcRapida(){
   document.getElementById('r-ca-G').textContent='-'+fmt(round2(G*12));
 
   renderN(N,document.getElementById('r-N'),document.getElementById('r-cm-N'),document.getElementById('r-gain-note'));
+
   const aN=round2(N*12),caN=document.getElementById('r-ca-N');
   caN.style.fontSize='18px';caN.style.fontWeight='600';
   if(aN>0){caN.textContent='-'+fmt(aN);caN.className='val loss';}
@@ -341,15 +332,11 @@ function calcRapida(){
   else{caN.textContent='€ 0,00';caN.className='val neutral';}
 }
 
-// ===== CALCOLO MENSILE =====
 let mC=1;
-const DAY_NAMES=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
-
 function calcMensile(){
   const month=parseInt(document.getElementById('m-month').value);
   const year=parseInt(document.getElementById('m-year').value)||2026;
   const B=parseFloat(document.getElementById('m-B').value)||0;
-  const extra=parseFloat(document.getElementById('m-extra').value)||0;
   const info=getMonthInfo(year,month);
 
   let html=`<strong>${info.working} giorni lavorativi</strong> &nbsp;·&nbsp; <strong>${info.hours} ore effettive</strong>`;
@@ -361,13 +348,12 @@ function calcMensile(){
     html+=' &nbsp;·&nbsp; nessuna festività infrasettimanale';
   }
   document.getElementById('m-info').innerHTML=html;
-  document.getElementById('m-ore-label').textContent=`· divisore ore effettive: ${info.hours}h`;
+  document.getElementById('m-ore-label').textContent=`· divisore: ${info.hours}h effettive`;
 
   const D=mC*8,divisore=info.hours>0?info.hours:173;
   const E=(B/divisore)*D,F=(1340.56/173)*D;
   const L=mC===8?(E-F)*0.75:0,G=round2(E-F-L);
-  const annualEst=(B+extra)*13;
-  const {nf,label,totalRate}=getNetFactor(annualEst);
+  const {nf,label,totalRate}=getNetFactor(B*13);
   const N=round2((E-L)*nf-F);
 
   document.getElementById('m-D').textContent=D+' h';
@@ -383,7 +369,6 @@ function calcMensile(){
   renderN(N,document.getElementById('m-N'),document.getElementById('m-cm-N'),document.getElementById('m-gain-note'));
 }
 
-// ===== EVENTS =====
 document.querySelectorAll('.main-tab').forEach(btn=>btn.addEventListener('click',()=>{
   document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -407,7 +392,10 @@ document.querySelectorAll('.sub-tab').forEach(tab=>tab.addEventListener('click',
 }));
 
 document.getElementById('r-ral').addEventListener('input',calcRapida);
-['m-month','m-year','m-B','m-extra'].forEach(id=>document.getElementById(id).addEventListener(id==='m-month'?'change':'input',calcMensile));
+['m-month','m-year','m-B'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener(id==='m-month'?'change':'input',calcMensile);
+});
 
 const now=new Date();
 document.getElementById('m-month').value=now.getMonth()+1;
